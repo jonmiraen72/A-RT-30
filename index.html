@@ -32,7 +32,8 @@
 
 <div class="container">
     <div class="header-box">
-        <h2>📁 Mirae-A 강사 지도서</h2>
+        <!-- 상단 제목 (자동으로 교재 이니셜이 반영됩니다) -->
+        <h2>📁 <span id="page-title">Mirae-A 강사 지도서</span></h2>
         <div>
             <input type="file" id="csvFile" accept=".csv" onchange="handleFileSelect(event)">
         </div>
@@ -159,10 +160,15 @@
         let units = Object.keys(unitData);
         if (units.length === 0) return;
 
-        // 스마트 자동 필터링 (주소창 폴더명 기반)
+        // 웹 주소(저장소 이름)에서 교재 이니셜 자동 추출 (예: A-RT-30 -> RT-30)
         const pathSegments = window.location.pathname.split('/').filter(Boolean);
         let repoName = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : "";
         let autoFilterKeyword = repoName.replace(/^PDF-/, "");
+
+        // 상단 타이틀(caption)에 선택된 교재명 이니셜 자동 반영
+        if (autoFilterKeyword) {
+            document.getElementById('page-title').innerText = `${autoFilterKeyword} 강사 지도서`;
+        }
 
         let filteredUnits = units;
         if (autoFilterKeyword && units.some(u => u.includes(autoFilterKeyword))) {
@@ -177,7 +183,6 @@
             option.innerText = unit;
             unitSelect.appendChild(option);
 
-            // 첫 번째 교재 기본 선택
             if (index === 0) {
                 unitSelect.value = unit;
                 selectUnit(unit);
@@ -213,6 +218,7 @@
                 btn.title = "등록된 PDF 파일이 없습니다.";
             }
 
+            // 차시 버튼 클릭 시 새 탭(_blank)으로 열고 교재·차시 타이틀 전달
             btn.onclick = () => {
                 if (item.fileName) {
                     const pdfPath = `${unitName}/${item.fileName}`;
