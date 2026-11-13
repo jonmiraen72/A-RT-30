@@ -137,4 +137,64 @@
             const no = cols[1] || '';           // 예: 1
             const fileName = cols[2] || '';     // 예: RT1003_1차시.pdf
 
-            if (
+            if (unit && no && fileName) {
+                if (!unitData[unit]) {
+                    unitData[unit] = [];
+                }
+                unitData[unit].push({ no, fileName });
+            }
+        });
+
+        renderUnits();
+    }
+
+    function renderUnits() {
+        const unitContainer = document.getElementById('unit-container');
+        unitContainer.innerHTML = '';
+        document.getElementById('unit-section').style.display = 'block';
+
+        const units = Object.keys(unitData);
+        if (units.length === 0) return;
+
+        units.forEach((unit, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'unit-btn';
+            btn.innerText = unit;
+            btn.onclick = () => selectUnit(unit, btn);
+            unitContainer.appendChild(btn);
+
+            // 첫 번째 유닛 기본 선택
+            if (index === 0) {
+                selectUnit(unit, btn);
+            }
+        });
+    }
+
+    function selectUnit(unitName, btnElement) {
+        document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+
+        document.getElementById('current-unit-title.innerText = unitName + " 차시 선택";
+        document.getElementById('session-section').style.display = 'block';
+
+        renderSessions(unitName);
+    }
+
+    function renderSessions(unitName) {
+        const sessionContainer = document.getElementById('session-container');
+        sessionContainer.innerHTML = '';
+
+        const sessions = unitData[unitName] || [];
+        sessions.forEach(item => {
+            const btn = document.createElement('button');
+            btn.className = 'session-btn';
+            btn.innerText = `${item.no}차시`;
+            btn.onclick = () => {
+                location.href = `viewer.html?file=${encodeURIComponent(unitName + '/' + item.fileName)}`;
+            };
+            sessionContainer.appendChild(btn);
+        });
+    }
+</script>
+</body>
+</html>
