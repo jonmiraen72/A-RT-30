@@ -174,7 +174,8 @@
         document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
         if (btnElement) btnElement.classList.add('active');
 
-        document.getElementById('current-unit-title.innerText = unitName + " 차시 선택";
+        // [수정된 부분] 따옴표와 괄호 구문 오류 해결
+        document.getElementById('current-unit-title').innerText = unitName + " 차시 선택";
         document.getElementById('session-section').style.display = 'block';
 
         renderSessions(unitName);
