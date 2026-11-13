@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title id="page-title">강사 지도서 뷰어</title>
+    <style>
+        /* 모바일 사파리 스크롤 및 전체 화면 고정 최적화 */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto; /* 스크롤 허용 */
+            -webkit-overflow-scrolling: touch; /* 아이패드/아이폰 부드러운 스크롤 */
+            background-color: #525659;
+        }
+        
+        #pdf-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+
+        .error-msg {
+            color: white;
+            text-align: center;
+            margin-top: 50px;
+            font-family: 'Malgun Gothic', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="viewer-container" style="width:100%; height:100%;"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const pdfUrl = params.get('file');
+        const titleText = params.get('title');
+
+        // 1. 타이틀 설정
+        if (titleText) {
+            const decodedTitle = decodeURIComponent(titleText);
+            document.title = decodedTitle;
+            document.getElementById('page-title').innerText = decodedTitle;
+        }
+
+        // 2. PDF 렌더링 (iframe 대신 embed 및 파라미터 활용)
+        const container = document.getElementById('viewer-container');
+        if (pdfUrl) {
+            const decodedUrl = decodeURIComponent(pdfUrl);
+            
+            // iOS 사파리에서 스크롤과 전체 페이지 로딩을 돕기 위해 #view=FitH 파라미터 추가
+            const finalPdfUrl = decodedUrl + '#view=FitH&scrollbar=1&toolbar=1&statusbar=1&messages=1';
+
+            // 모바일에서 스크롤 호환성이 좋은 <embed> 태그 사용
+            container.innerHTML = `<embed id="pdf-embed" src="${finalPdfUrl}" type="application/pdf">`;
+        } else {
+            container.innerHTML = `<h2 class="error-msg">PDF 파일을 찾을 수 없습니다.</h2>`;
+        }
+    </script>
+
+</body>
+</html>
