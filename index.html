@@ -56,7 +56,6 @@
     let unitData = {};
 
     window.addEventListener('DOMContentLoaded', () => {
-        // 루트에 있는 통일된 CSV 파일명 (Github-A.csv)
         const defaultCsvPath = 'Github-A.csv'; 
 
         fetch(defaultCsvPath)
@@ -133,9 +132,9 @@
 
         dataRows.forEach(row => {
             const cols = parseCSVLine(row);
-            const unit = cols[0] || '';         // 예: RT-30-1
-            const no = cols[1] || '';           // 예: 1
-            const fileName = cols[2] || '';     // 예: RT1003_1차시.pdf
+            const unit = cols[0] || '';         
+            const no = cols[1] || '';           
+            const fileName = cols[2] || '';     
 
             if (unit && no && fileName) {
                 if (!unitData[unit]) {
@@ -156,9 +155,20 @@
         let units = Object.keys(unitData);
         if (units.length === 0) return;
 
-        // 현재 저장소에 맞는 교재만 필터링 (예: RT-30)
-        const currentRepoFilter = "RT-30"; 
-        const filteredUnits = units.filter(unit => unit.includes(currentRepoFilter));
+        // [핵심] 현재 웹 주소(또는 저장소 이름)를 브라우저에서 자동으로 읽어옵니다.
+        // 예: 주소가 .../PDF-RT-30/ 이면 'RT-30' 이라는 키워드를 스스로 추출합니다.
+        const pathSegments = window.location.pathname.split('/').filter(Boolean);
+        let repoName = pathSegments.length > 0 ? pathSegments[pathSegments.length - 1] : "";
+        
+        // 만약 주소가 로컬 파일이거나 이름에 PDF- 가 포함되어 있다면 그 뒤의 진짜 교재명만 추출 (예: PDF-RT-30 -> RT-30)
+        let autoFilterKeyword = repoName.replace(/^PDF-/, "");
+
+        // 만약 주소에서 못 읽어왔거나 하면 전체 중에서 필터링을 시도
+        let filteredUnits = units;
+        if (autoFilterKeyword) {
+            filteredUnits = units.filter(unit => unit.includes(autoFilterKeyword));
+        }
+        
         const targetUnits = filteredUnits.length > 0 ? filteredUnits : units;
 
         targetUnits.forEach((unit, index) => {
@@ -199,7 +209,6 @@
                 btn.title = "등록된 PDF 파일이 없습니다.";
             }
 
-            // [적용 완료] 차시 버튼 클릭 시 새 탭(_blank)으로 열면서 교재·차시 정보 타이틀 전달
             btn.onclick = () => {
                 if (item.fileName) {
                     const pdfPath = `${unitName}/${item.fileName}`;

@@ -56,6 +56,7 @@
     let unitData = {};
 
     window.addEventListener('DOMContentLoaded', () => {
+        // 루트에 있는 통일된 CSV 파일명 (Github-A.csv)
         const defaultCsvPath = 'Github-A.csv'; 
 
         fetch(defaultCsvPath)
@@ -155,12 +156,9 @@
         let units = Object.keys(unitData);
         if (units.length === 0) return;
 
-        // [수정된 부분] 현재 저장소/폴더 이름(예: A-RT-30 또는 RT-30)에 해당하는 유닛만 골라냅니다.
-        // 현재 페이지가 RT-30 관련 폴더이므로 'RT-30'이 포함된 유닛만 필터링합니다.
-        const currentRepoFilter = "RT-30"; // 필요시 다른 시리즈명으로 변경 가능
+        // 현재 저장소에 맞는 교재만 필터링 (예: RT-30)
+        const currentRepoFilter = "RT-30"; 
         const filteredUnits = units.filter(unit => unit.includes(currentRepoFilter));
-
-        // 만약 필터링된 항목이 있다면 그것만 쓰고, 없으면 전체를 보여줍니다.
         const targetUnits = filteredUnits.length > 0 ? filteredUnits : units;
 
         targetUnits.forEach((unit, index) => {
@@ -195,9 +193,25 @@
             const btn = document.createElement('button');
             btn.className = 'session-btn';
             btn.innerText = `${item.no}차시`;
+            
+            if (!item.fileName) {
+                btn.classList.add('disabled');
+                btn.title = "등록된 PDF 파일이 없습니다.";
+            }
+
+            // [적용 완료] 차시 버튼 클릭 시 새 탭(_blank)으로 열면서 교재·차시 정보 타이틀 전달
             btn.onclick = () => {
-                location.href = `viewer.html?file=${encodeURIComponent(unitName + '/' + item.fileName)}`;
+                if (item.fileName) {
+                    const pdfPath = `${unitName}/${item.fileName}`;
+                    const displayTitle = `${unitName} - ${item.no}차시`;
+                    
+                    const viewerUrl = `viewer.html?file=${encodeURIComponent(pdfPath)}&title=${encodeURIComponent(displayTitle)}`;
+                    window.open(viewerUrl, '_blank');
+                } else {
+                    alert('해당 차시의 지도서 PDF 파일이 아직 준비되지 않았습니다.');
+                }
             };
+            
             sessionContainer.appendChild(btn);
         });
     }
